@@ -1,0 +1,192 @@
+@page
+@model ChatModel
+@{
+    ViewData["Title"] = "Chat";
+}
+
+<div class="chat-page d-flex flex-column">
+    <div class="chat-card card shadow-sm flex-grow-1">
+    <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary rounded-pill">AI</span>
+                <h5 class="mb-0">Assistant</h5>
+            </div>
+            <div class="text-muted small">Connected</div>
+        </div>
+        <div class="card-body p-0 d-flex flex-column">
+            <div id="messages" class="chat-messages flex-grow-1 p-3"></div>
+            <div class="chat-input border-top p-2">
+                <form id="chatForm" class="d-flex align-items-end gap-2" method="post" onsubmit="return false;">
+                    <div class="form-floating flex-grow-1">
+                        <textarea id="userInput" class="form-control" placeholder="Type your message..." style="height: 80px"></textarea>
+                        <label for="userInput">Message</label>
+                    </div>
+                    @Html.AntiForgeryToken()
+                    <button id="sendBtn" type="button" class="btn btn-primary btn-lg px-4">
+                        <span class="d-none d-sm-inline">Send</span>
+                        <span class="d-inline d-sm-none">➤</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function() {
+            const messages = document.getElementById('messages');
+            const input = document.getElementById('userInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const form = document.getElementById('chatForm');
+
+            function appendRow(innerHtml, me=false) {
+                const row = document.createElement('div');
+                row.className = 'message-row' + (me ? ' me' : '');
+                row.innerHTML = innerHtml;
+                messages.appendChild(row);
+                messages.scrollTop = messages.scrollHeight;
+                return row;
+            }
+
+            function createMeBubble(text) {
+                const html = `<div class="bubble me"></div>`;
+                const row = appendRow(html, true);
+                row.querySelector('.bubble').textContent = text;
+            }
+
+            function ensureAssistantBubble() {
+                let last = messages.lastElementChild;
+                let bubble;
+                if (!last || !last.querySelector('.bubble.ai:not(.reasoning)')) {
+                    last = appendRow('<div class="bubble ai"></div>');
+                }
+                bubble = last.querySelector('.bubble.ai');
+                return bubble;
+            }
+
+            function ensureReasoningBubble() {
+                let last = messages.lastElementChild;
+                if (!last || !last.querySelector('.bubble.ai.reasoning')) {
+                    last = appendRow('<div class="bubble ai reasoning"></div>');
+                }
+                return last.querySelector('.bubble.ai.reasoning');
+            }
+
+            async function streamChat(text) {
+                // Add the user's message immediately
+                createMeBubble(text);
+
+                // Disable UI
+                input.disabled = true; sendBtn.disabled = true;
+
+                // Get anti-forgery token
+                const tokenEl = form.querySelector('input[name="__RequestVerificationToken"]');
+                const token = tokenEl ? tokenEl.value : '';
+
+                const response = await fetch('/Chat?handler=Stream', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'RequestVerificationToken': token
+                    },
+                    body: 'UserMessage=' + encodeURIComponent(text)
+                });
+
+                if (!response.ok || !response.body) {
+                    appendRow('<div class="bubble ai">Error: failed to start stream.</div>');
+                    input.disabled = false; sendBtn.disabled = false; input.focus();
+                    return;
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                try {
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) break;
+                        buffer += decoder.decode(value, { stream: true });
+
+                        // Process SSE events separated by blank lines
+                        let idx;
+                        while ((idx = buffer.indexOf('\n\n')) !== -1) {
+                            const block = buffer.slice(0, idx).replace(/\r/g, '');
+                            buffer = buffer.slice(idx + 2);
+                            const lines = block.split('\n');
+                            let eventType = 'message';
+                            let dataPayload = '';
+                            for (const line of lines) {
+                                if (line.startsWith('event:')) {
+                                    eventType = line.slice(6).trim();
+                                } else if (line.startsWith('data:')) {
+                                    dataPayload += (dataPayload ? '\n' : '') + line.slice(5).trim();
+                                }
+                            }
+                            if (eventType === 'done') {
+                                // After streaming completes, send the accumulated final text to the server to persist in session
+                                try {
+                                    const finalBubble = messages.querySelector('.message-row:last-child .bubble.ai:not(.reasoning)');
+                                    const finalText = finalBubble ? finalBubble.textContent : '';
+                                    if (finalText) {
+                                        await fetch('/Chat?handler=AppendAssistant', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                                                'RequestVerificationToken': token
+                                            },
+                                            body: 'text=' + encodeURIComponent(finalText)
+                                        });
+                                    }
+                                } catch {}
+                                input.disabled = false; sendBtn.disabled = false; input.value = ''; input.focus();
+                                continue;
+                            }
+                            if (!dataPayload) continue;
+                            try {
+                                const msg = JSON.parse(dataPayload);
+                                const html = msg?.Html || msg?.html || '';
+                                if (!html) continue;
+
+                                // Reasoning chunks are sent as <span class="chunk reasoning">...</span>
+                                if (html.includes('chunk reasoning')) {
+                                    const bubble = ensureReasoningBubble();
+                                    const span = document.createElement('span');
+                                    span.innerHTML = html;
+                                    bubble.appendChild(span);
+                                    messages.scrollTop = messages.scrollHeight;
+                                } else {
+                                    // Final text chunk: ensure there's a current assistant bubble
+                                    const bubble = ensureAssistantBubble();
+                                    const span = document.createElement('span');
+                                    span.innerHTML = html; // server-side encoded
+                                    bubble.appendChild(span);
+                                    messages.scrollTop = messages.scrollHeight;
+                                }
+                            } catch { /* ignore malformed chunks */ }
+                        }
+                    }
+                } catch (e) {
+                    appendRow('<div class="bubble ai">Error: ' + String(e) + '</div>');
+                } finally {
+                    input.disabled = false; sendBtn.disabled = false; input.focus();
+                }
+            }
+
+            sendBtn.addEventListener('click', () => {
+                const text = (input.value || '').trim();
+                if (!text) return;
+                streamChat(text);
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    const text = (input.value || '').trim();
+                    if (!text) return;
+                    streamChat(text);
+                    e.preventDefault();
+                }
+            });
+        })();
+    </script>
+}

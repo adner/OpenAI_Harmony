@@ -1,0 +1,36 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "dotnet",
+			"task": "build C:\\Sandboxes\\HarmonyTest\\HarmonyTest.csproj",
+			"file": "C:\\Sandboxes\\HarmonyTest\\HarmonyTest.csproj",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "dotnet: build C:\\Sandboxes\\HarmonyTest\\HarmonyTest.csproj"
+		},
+		{
+			"label": "watch: HarmonyTest",
+			"type": "shell",
+			"command": "dotnet",
+			"args": [
+				"watch",
+				"run",
+				"--project",
+				"c:\\Sandboxes\\HarmonyTest\\HarmonyTest.csproj"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"isBackground": true,
+			"problemMatcher": {
+				"base": "$msCompile",
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^\\s*watch\\s*:",
+					"endsPattern": "Now listening on|Application started\\.|Content root path:"
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,55 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "compounds": [
+        {
+                "name": "Run with Hot Reload",
+                "configurations": ["Hot Reload (no debug)"]
+        }
+    ],
+    "configurations": [
+            {
+            "name": "Hot Reload (no debug)",
+            "type": "coreclr",
+            "request": "launch",
+                "program": "dotnet",
+                "args": [
+                    "watch",
+                    "run",
+                    "--project",
+                    "${workspaceFolder}/HarmonyTest.csproj"
+                ],
+                "cwd": "${workspaceFolder}",
+                "console": "integratedTerminal"
+            },
+        {
+        "name": "ASP.NET Core (watch)",
+        "type": "coreclr",
+        "request": "attach",
+        "preLaunchTask": "watch: HarmonyTest",
+        "processName": "HarmonyTest",
+        "justMyCode": true,
+        "presentation": { "hidden": true }
+        },
+        {
+            "name": "ASP.NET Core (no watch)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "dotnet: build C\\Sandboxes\\HarmonyTest\\HarmonyTest.csproj",
+            "program": "${workspaceFolder}/bin/Debug/net9.0/HarmonyTest.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Pages"
+            }
+        }
+    ]
+}

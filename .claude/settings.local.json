@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git pull:*)",
+      "Bash(git fetch:*)",
+      "Bash(git config:*)",
+      "Bash(git push:*)",
+      "Bash(git.exe push)",
+      "Bash(git.exe status)",
+      "Bash(git.exe add .claude/ CLAUDE.md)",
+      "Bash(dotnet.exe new:*)"
+    ],
+    "deny": []
+  }
+}

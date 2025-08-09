@@ -1,0 +1,136 @@
+# .NET / Visual Studio gitignore
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+[Bb]uild/
+[Bb]ld/
+artifacts/
+
+# Architecture-specific
+x86/
+x64/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+
+# Visual Studio cache and settings
+.vs/
+*.suo
+*.user
+*.userosscache
+*.userprefs
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains Rider / ReSharper
+.idea/
+*.sln.DotSettings.user
+*.DotSettings.user
+_ReSharper*/
+*.resharper
+
+# NuGet
+*.nupkg
+*.snupkg
+# NuGet v3 lock file
+project.assets.json
+# NuGet packages folder
+packages/
+# except build/ to allow MSBuild props/targets if needed
+!packages/build/
+!packages/repositories.config
+.nuget/
+
+# MSBuild and other caches
+*.cache
+*.mpp
+*.obj
+*.pch
+*.pdb
+*.mdb
+*.ipch
+*.opendb
+*.tlog
+*.lastbuildstate
+
+# Test results / coverage
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# Logs
+*.log
+
+# IIS Express
+/IISExpress/
+/App_Data/
+
+# Publishing
+[Bb]uild[Ll]og.*
+*.pubxml
+*.pubxml.user
+PublishProfiles/
+
+# Azure
+*.azurePubxml
+*.publishsettings
+
+# Security/Certificates
+*.pfx
+*.p12
+*.snk
+
+# Entity Framework (keep migrations by default)
+# (Do not ignore Migrations/ to keep schema history in source control)
+
+# ASP.NET / front-end
+node_modules/
+npm-debug.log*
+yarn-error.log*
+wwwroot/lib/
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+*.bak
+*.swp
+*.swo
+
+# OS-specific
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+# Linux
+.fuse_hidden*
+.Trash-*/
+
+# Tooling
+StyleCop.Cache
+*.ncrunchsolution
+_nCrunch_*/
+.*crunch*.local.xml
+
+# Rider / solution metadata
+*.DotSettings
+
+# Local tooling state
+.dotnet-tools.json

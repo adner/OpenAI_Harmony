@@ -1,0 +1,107 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+/* Chat page layout */
+.chat-page {
+  min-height: calc(100vh - 140px);
+}
+
+.chat-card {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 200px);
+}
+
+.chat-messages {
+  overflow-y: auto;
+  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 60%);
+}
+
+.message-row {
+  display: flex;
+  margin-bottom: 0.75rem;
+}
+
+.message-row.me {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: min(75%, 720px);
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.bubble.ai {
+  background: #f1f5ff;
+  border: 1px solid #e1e7ff;
+}
+
+.bubble.me {
+  background: #e8f5e9;
+  border: 1px solid #d2ead4;
+}
+
+/* Reasoning bubble — make it clearly distinct from final answer */
+.bubble.ai.reasoning {
+  position: relative;
+  background: #fffaf0; /* soft warm background */
+  border: 1px dashed #ffe8a3; /* dashed to signal interim */
+  color: #5c4b00; /* dark amber text */
+}
+
+.bubble.ai.reasoning::before {
+  content: "🧠 Reasoning";
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #b45309; /* accent */
+  background: #fff3cd;
+  border: 1px solid #ffe69c;
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  margin-bottom: 0.4rem;
+  width: fit-content;
+}
+
+/* Reasoning text chunks */
+.bubble.ai.reasoning .chunk.reasoning {
+  white-space: pre-wrap; /* preserve line breaks */
+  color: inherit;
+}
+
+.chat-input textarea.form-control {
+  resize: vertical;
+}
