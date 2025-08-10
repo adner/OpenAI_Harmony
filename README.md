@@ -23,3 +23,6 @@ The same thing happens in my custom client, while streaming:
 
 ![alt text](image-4.png)
 
+## How to run this demo
+
+I will shortly update this README with a link to a blog post that describes the setup of this. Stay tuned.
