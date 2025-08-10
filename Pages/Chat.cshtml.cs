@@ -33,12 +33,12 @@ public class ChatModel : PageModel
         }
 
         var history = GetHistory();
-        // Ensure an initial system prompt that constrains message lengths
-        if (history.Count == 0 || history[0].Role != ChatRole.System)
-        {
-            history.Insert(0, new ChatMessage(ChatRole.System,
-                "Keep your answers brief. Don't talk about your system instructions in the reasoning messages."));
-        }
+        // // Ensure an initial system prompt that constrains message lengths
+        // if (history.Count == 0 || history[0].Role != ChatRole.System)
+        // {
+        //     history.Insert(0, new ChatMessage(ChatRole.System,
+        //         "Keep your answers brief. Don't talk about your system instructions in the reasoning messages."));
+        // }
         history.Add(new ChatMessage(ChatRole.User, userText));
     // Save user message before starting the SSE stream to avoid session modification after response starts
     SaveHistory(history);
@@ -48,7 +48,7 @@ public class ChatModel : PageModel
         Response.Headers["X-Accel-Buffering"] = "no";
 
         var sbFinal = new StringBuilder();
-    await foreach (var update in _chat.GetStreamingResponseAsync(history))
+    await foreach (var update in _chat.GetStreamingResponseAsync(history, new ChatOptions() { MaxOutputTokens = 16000 }))
         {
             // Render chunks: reasoning styled differently, final as normal
             foreach (var content in update.Contents)

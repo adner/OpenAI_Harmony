@@ -459,6 +459,34 @@ public partial class HarmonyChatClient
                 }
             }
 
+            // Partial final streaming: as soon as the final channel starts,
+            // stream any newly arrived text even if the closing token hasn't arrived yet.
+            const string finalStart = "<|channel|>final<|message|>";
+            const string returnToken = "<|return|>";
+            var finalIdx = text.IndexOf(finalStart, StringComparison.OrdinalIgnoreCase);
+            if (finalIdx >= 0)
+            {
+                var finalContentStart = finalIdx + finalStart.Length;
+                var endIdx = text.IndexOf(endToken, finalContentStart, StringComparison.OrdinalIgnoreCase);
+                var returnIdx = text.IndexOf(returnToken, finalContentStart, StringComparison.OrdinalIgnoreCase);
+                // If either a proper end or return token exists, let the final-only regex handle it
+                if (endIdx < 0 && returnIdx < 0)
+                {
+                    if (finalContentStart < text.Length)
+                    {
+                        var chunk = text.Substring(finalContentStart);
+                        if (chunk.Length > 0)
+                        {
+                            results.Add(new TextContent(chunk));
+                            // Remove only the emitted chunk; keep the start tag so future chunks append.
+                            buffer.Remove(finalContentStart, chunk.Length);
+                            continue;
+                        }
+                    }
+                    // Start tag present but no content yet; wait for more data.
+                }
+            }
+
             // Final-only (only when final has a closing tag)
             var fn = s_streamFinalOnlyRegex.Match(text);
             if (fn.Success)

@@ -42,8 +42,33 @@ body {
 }
 
 .chat-messages {
+  /* Fixed, scrollable window for messages */
+  flex: 0 0 60vh; /* do not grow; fixed to 60vh */
+  height: 60vh;
+  min-height: 0;
   overflow-y: auto;
   background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 60%);
+}
+
+/* Ensure parent flex container doesn't force the messages area to grow */
+.chat-card .card-body {
+  min-height: 0;
+  overflow: hidden; /* prevent double scrollbars by containing inner overflow */
+}
+
+/* Chat input should stay at the bottom and match its content height */
+.chat-input {
+  flex: 0 0 auto;     /* do not grow */
+  margin-top: auto;   /* push to bottom in column flex */
+  background: #fff;   /* ensure clear separation from messages area */
+}
+
+.chat-input #chatForm {
+  height: auto;       /* form should size to its contents (textarea + button) */
+}
+
+.chat-input #chatForm .btn {
+  align-self: stretch;   /* make button same height as the textarea container */
 }
 
 .message-row {
