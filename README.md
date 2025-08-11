@@ -15,14 +15,6 @@ This repo is an attempt to showcase Foundry Local running oss-gpt-20b and provid
 
 ![alt text](image-2.png)
 
-On peculiar thing I noticed was that Foundry Local service seems to cut off "long" reasoning messages, both while streaming and when requesting the whole response at once. Example from Postman, where the response has been cut off:
+ ~~One peculiar thing I noticed was that Foundry Local service seems to cut off "long" reasoning messages, both while streaming and when requesting the whole response at once.~~ This was due to a too low limit on output tokens, passing a higher value fixed it.
 
-![alt text](image-3.png)
-
-The same thing happens in my custom client, while streaming:
-
-![alt text](image-4.png)
-
-## How to run this demo
-
-I will shortly update this README with a link to a blog post that describes the setup of this. Stay tuned.
+More info in [this](https://nullpointer.se/2025/08/10/foundry-local-harmony.html) blog post.
